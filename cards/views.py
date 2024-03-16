@@ -74,6 +74,7 @@ info = {
 def main(request):
     return render(request, 'base.html')
 
+
 def catalog(request):
     return HttpResponse("Каталог карточек")
 
