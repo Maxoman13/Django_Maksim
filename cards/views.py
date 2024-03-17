@@ -80,7 +80,7 @@ def about(request):
 
 
 def catalog(request):
-    return render(request, 'cards/catalog.html')
+    return render(request, 'cards/catalog.html', context=info)
 
 
 def get_card_by_id(request, card_id):

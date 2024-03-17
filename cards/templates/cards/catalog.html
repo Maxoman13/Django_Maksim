@@ -3,5 +3,11 @@
 {% block title %}Каталог карточек{% endblock %}
 
 {% block content %}
-<p>Cards catalog</p>
+<ul>
+    {% for card in cards %}
+    <li>
+        {% include 'include/card_preview.html' %}
+    </li>
+    {% endfor %}
+</ul>
 {% endblock %}
