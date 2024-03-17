@@ -75,8 +75,12 @@ def main(request):
     return render(request, 'main.html', context=info)
 
 
+def about(request):
+    return render(request, 'about.html', context=info)
+
+
 def catalog(request):
-    return render(request, 'catalog.html')
+    return render(request, 'cards/catalog.html')
 
 
 def get_card_by_id(request, card_id):
