@@ -72,7 +72,7 @@ info = {
 
 
 def main(request):
-    return render(request, 'base.html', context=info)
+    return render(request, 'main.html', context=info)
 
 
 def catalog(request):
