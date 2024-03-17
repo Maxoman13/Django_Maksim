@@ -14,7 +14,9 @@
 </head>
 <body>
 <header>
-
+    {% block nav %}
+    {% include "include/menu.html" %}
+    {% endblock %}
 </header>
 <main>
     {% block content %} {% endblock %}

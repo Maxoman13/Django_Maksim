@@ -72,11 +72,11 @@ info = {
 
 
 def main(request):
-    return render(request, 'base.html')
+    return render(request, 'base.html', context=info)
 
 
 def catalog(request):
-    return HttpResponse("Каталог карточек")
+    return render(request, 'catalog.html')
 
 
 def get_card_by_id(request, card_id):
