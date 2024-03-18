@@ -84,8 +84,12 @@ def catalog(request):
 
 
 def get_card_by_id(request, card_id):
-    return HttpResponse(f"Карточка {card_id}")
+    return HttpResponse(f"Категория {card_id}")
 
 
 def get_category_by_name(request, slug):
     return HttpResponse(f"Категория {slug}")
+
+
+def get_detail_card_by_id(request):
+    return render(request, 'cards/card_preview.html', context=info)
