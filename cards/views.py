@@ -91,5 +91,15 @@ def get_category_by_name(request, slug):
     return HttpResponse(f"Категория {slug}")
 
 
-def get_detail_card_by_id(request):
-    return render(request, 'cards/card_preview.html', context=info)
+def get_detail_card_by_id(request, card_id):
+    card = None
+    for c in cards_dataset:
+        if c['id_card'] == int(card_id):
+            card = c
+            break
+
+    info['card'] = card
+    if card:
+        return render(request, 'cards/card_detail.html', context=info)
+    else:
+        return HttpResponse(f"Не найдено", status=404)
