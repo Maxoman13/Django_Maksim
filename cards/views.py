@@ -72,26 +72,41 @@ info = {
 
 
 def main(request):
+    """
+    Функция для отображения главной страницы
+    будет возвращать рендер шаблона main.html
+    """
     return render(request, 'main.html', context=info)
 
 
 def about(request):
+    """
+    Функция для отображения страницы о сайте
+    будет возвращать рендер шаблона about.html
+    """
     return render(request, 'about.html', context=info)
 
 
 def catalog(request):
+    """
+    Функция для отображения каталога карточек
+    будет возвращать рендер шаблона cards/catalog.html
+    """
     return render(request, 'cards/catalog.html', context=info)
 
 
-def get_card_by_id(request, card_id):
-    return HttpResponse(f"Категория {card_id}")
-
-
 def get_category_by_name(request, slug):
+    """
+    Функция для отображения категорий по имени
+    """
     return HttpResponse(f"Категория {slug}")
 
 
 def get_detail_card_by_id(request, card_id):
+    """
+    Функция для отображения детального представления карточки
+    будет возвращать рендер шаблона cards/card_detail.html
+    """
     card = None
     for c in cards_dataset:
         if c['id_card'] == int(card_id):
