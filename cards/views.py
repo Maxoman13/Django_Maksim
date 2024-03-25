@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from .models import Card
 
 cards_dataset = [
     {"question": "Что такое PEP 8?",
@@ -92,7 +93,13 @@ def catalog(request):
     Функция для отображения каталога карточек
     будет возвращать рендер шаблона cards/catalog.html
     """
-    return render(request, 'cards/catalog.html', context=info)
+    cards = Card.objects.all()
+    contex = {
+        'cards': cards,
+        'cards_count': cards.count(),
+        'menu': info['menu']
+    }
+    return render(request, 'cards/catalog.html', contex)
 
 
 def get_category_by_name(request, slug):
