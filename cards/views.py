@@ -94,12 +94,12 @@ def catalog(request):
     будет возвращать рендер шаблона cards/catalog.html
     """
     cards = Card.objects.all()
-    contex = {
+    context = {
         'cards': cards,
         'cards_count': cards.count(),
         'menu': info['menu']
     }
-    return render(request, 'cards/catalog.html', contex)
+    return render(request, 'cards/catalog.html', context)
 
 
 def get_category_by_name(request, slug):
@@ -114,14 +114,10 @@ def get_detail_card_by_id(request, card_id):
     Функция для отображения детального представления карточки
     будет возвращать рендер шаблона cards/card_detail.html
     """
-    card = None
-    for c in cards_dataset:
-        if c['id_card'] == int(card_id):
-            card = c
-            break
+    card = Card.objects.get(pk=card_id)
+    context = {
+        'card': card,
+        'menu': info['menu']
+    }
 
-    info['card'] = card
-    if card:
-        return render(request, 'cards/card_detail.html', context=info)
-    else:
-        return HttpResponse(f"Не найдено", status=404)
+    return render(request, 'cards/card_detail.html', context)
