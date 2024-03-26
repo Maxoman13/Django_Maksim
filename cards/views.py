@@ -93,7 +93,20 @@ def catalog(request):
     Функция для отображения каталога карточек
     будет возвращать рендер шаблона cards/catalog.html
     """
-    cards = Card.objects.all()
+
+    sort = request.GET.get('sort', 'upload_date')
+    order = request.GET.get('order', 'desc')
+
+    valid_sort_fields = {'upload_date', 'views', 'adds'}
+    if sort not in valid_sort_fields:
+        sort = 'upload_date'
+
+    if order == 'asc':
+        order_by = sort
+    else:
+        order_by = f'-{sort}'
+
+    cards = Card.objects.all().order_by(order_by)
     context = {
         'cards': cards,
         'cards_count': cards.count(),
