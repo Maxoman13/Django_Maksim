@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Card(models.Model):
-    question = models.CharField(max_length=255)
+    question = models.CharField(max_length=255, db_column='Question')
     answer = models.TextField(max_length=5000)
     upload_date = models.DateTimeField(auto_now_add=True)
     views = models.IntegerField(default=0)
