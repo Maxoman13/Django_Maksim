@@ -9,7 +9,7 @@ class Card(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True, db_column='UploadDate')
     views = models.IntegerField(default=0, db_column='Views')
     adds = models.IntegerField(default=0, db_column='Favorites')
-    tags = models.JSONField(default=list)
+    tags = models.ManyToManyField('Tag', through='CardTag', related_name='cards')
 
     def __str__(self):
         return f'Карточка {self.question} - {self.answer[:50]}'
@@ -46,7 +46,7 @@ class Category(models.Model):
         return f'Категория {self.name}'
 
 
-class CardTags(models.Model):
+class CardTag(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE, db_column='CardId')
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE, db_column='TagId')
 
