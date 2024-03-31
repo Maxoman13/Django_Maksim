@@ -134,3 +134,19 @@ def get_detail_card_by_id(request, card_id):
     }
 
     return render(request, 'cards/card_detail.html', context)
+
+
+def get_cards_by_tag(request, tag_id):
+    """
+    Возвращает карточки по тегу для представления в каталоге
+    """
+    # Добываем карточки из БД по тегу
+    cards = Card.objects.filter(tags__id=tag_id)
+
+    # Подготавливаем контекст и отображаем шаблон
+    context = {
+        'cards': cards,
+        'menu': info['menu'],
+    }
+
+    return render(request, 'cards/catalog.html', context)
