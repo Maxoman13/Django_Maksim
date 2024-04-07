@@ -5,7 +5,7 @@ class Card(models.Model):
     id = models.AutoField(primary_key=True, db_column='CardId')
     question = models.CharField(max_length=255, db_column='Question')
     answer = models.TextField(max_length=5000, db_column='Answer')
-    category_id = models.IntegerField(default=0, db_column='CategoryId')
+    category = models.ForeignKey('Categories', on_delete=models.CASCADE, db_column='CategoryId')
     upload_date = models.DateTimeField(auto_now_add=True, db_column='UploadDate')
     views = models.IntegerField(default=0, db_column='Views')
     adds = models.IntegerField(default=0, db_column='Favorites')
@@ -33,12 +33,12 @@ class Tag(models.Model):
         return f'Тег {self.name}'
 
 
-class Category(models.Model):
+class Categories(models.Model):
     id = models.AutoField(primary_key=True, db_column='CategoryId')
     name = models.CharField(max_length=100, unique=True, db_column='Name')
 
     class Meta:
-        db_table = 'Category'
+        db_table = 'Categories'
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
