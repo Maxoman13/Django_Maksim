@@ -47,6 +47,7 @@ class Category(models.Model):
 
 
 class CardTag(models.Model):
+    id = models.AutoField(primary_key=True, db_column='id')
     card = models.ForeignKey(Card, on_delete=models.CASCADE, db_column='CardId')
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE, db_column='TagId')
 
