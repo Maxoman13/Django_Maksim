@@ -6,14 +6,15 @@ class Card(models.Model):
         UNCHECKED = 0, 'Не проверено'
         CHECKED = 1, 'Проверено'
     id = models.AutoField(primary_key=True, db_column='CardId')
-    question = models.CharField(max_length=255, db_column='Question')
-    answer = models.TextField(max_length=5000, db_column='Answer')
-    category = models.ForeignKey('Categories', on_delete=models.CASCADE, db_column='CategoryID')
-    upload_date = models.DateTimeField(auto_now_add=True, db_column='UploadDate')
-    views = models.IntegerField(default=0, db_column='Views')
+    question = models.CharField(max_length=255, db_column='Question', verbose_name='Вопрос')
+    answer = models.TextField(max_length=5000, db_column='Answer', verbose_name='Ответ')
+    category = models.ForeignKey('Categories', on_delete=models.CASCADE, db_column='CategoryID', verbose_name='Категория')
+    upload_date = models.DateTimeField(auto_now_add=True, db_column='UploadDate', verbose_name='Дата загрузки')
+    views = models.IntegerField(default=0, db_column='Views', verbose_name='Просмотры')
     adds = models.IntegerField(default=0, db_column='Favorites')
-    tags = models.ManyToManyField('Tag', through='CardTag', related_name='cards')
-    # check_status = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)), default=Status.UNCHECKED, db_column='CheckStatus')
+    tags = models.ManyToManyField('Tag', through='CardTag', related_name='cards', verbose_name='Теги')
+    check_status = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)),
+                                       default=Status.UNCHECKED, db_column='CheckStatus', verbose_name='Статус проверки')
 
     def __str__(self):
         return f'Карточка {self.question} - {self.answer[:50]}'
