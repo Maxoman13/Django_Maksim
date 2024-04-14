@@ -157,7 +157,9 @@ def add_card(request):
     if request.method == 'POST':
         form = CardForm(request.POST)
         if form.is_valid():
-            return redirect('catalog')
+            card = form.save()
+            # Редирект на страницу созданной карточки после успешного сохранения
+            return redirect(card.get_absolute_url())
     else:
         form = CardForm()
 

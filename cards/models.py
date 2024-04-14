@@ -24,6 +24,9 @@ class Card(models.Model):
         verbose_name = 'Карточка'  # имя модели в единственном числе
         verbose_name_plural = 'Карточки'  # имя модели во множественном числе
 
+    def get_absolute_url(self):
+        return f'/cards/{self.id}/detail/'
+
 
 class Tag(models.Model):
     id = models.AutoField(primary_key=True, db_column='TagId')
