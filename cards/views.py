@@ -1,6 +1,7 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Card
+from .forms import CardForm
 
 cards_dataset = [
     {"question": "Что такое PEP 8?",
@@ -56,7 +57,7 @@ cards_dataset = [
 ]
 info = {
     "users_count": 100500,
-    "cards_count": 200600,
+    "cards_count": len('cards'),
     # "menu": ['Главная', 'О проекте', 'Каталог']
     "menu": [
         {"title": "Главная",
@@ -77,7 +78,7 @@ def main(request):
     Функция для отображения главной страницы
     будет возвращать рендер шаблона main.html
     """
-    return render(request, 'main.html', context=info)
+    return render(request, 'main.html', info)
 
 
 def about(request):
@@ -85,7 +86,7 @@ def about(request):
     Функция для отображения страницы о сайте
     будет возвращать рендер шаблона about.html
     """
-    return render(request, 'about.html', context=info)
+    return render(request, 'about.html', info)
 
 
 def catalog(request):
@@ -109,7 +110,7 @@ def catalog(request):
     cards = Card.objects.all().order_by(order_by)
     context = {
         'cards': cards,
-        'cards_count': cards.count(),
+        'cards_count': len(cards),
         'menu': info['menu']
     }
     return render(request, 'cards/catalog.html', context)
@@ -150,3 +151,14 @@ def get_cards_by_tag(request, tag_id):
     }
 
     return render(request, 'cards/catalog.html', context)
+
+
+def add_card(request):
+    if request.method == 'POST':
+        form = CardForm(request.POST)
+        if form.is_valid():
+            return redirect('catalog')
+    else:
+        form = CardForm()
+
+    return render(request, 'cards/add_card.html', {'form': form})

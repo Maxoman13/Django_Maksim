@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Добавление карточки{% endblock %}
+
+{% block content %}
+    <div class="card" style="width: 50rem;">
+    <h1>Добавить карточку</h1>
+        <div class="card-body">
+    <form method="post" novalidate>
+        {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }} </label>
+ {{ field }}
+ {% if field.errors %}
+    <div class="alert alert-danger mt-1">{{ field.errors.as_text }} </div>
+ {% endif %}
+    </div>
+ {% endfor %}
+        </div>
+    </div>
+{% endblock %}
