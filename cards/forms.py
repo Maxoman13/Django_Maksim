@@ -45,3 +45,7 @@ class CardForm(forms.ModelForm):
             instance.tags.add(tag)
 
         return instance
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField()

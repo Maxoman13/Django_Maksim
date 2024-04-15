@@ -1,7 +1,8 @@
+from django.contrib.postgres.search import SearchVector
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import Card
-from .forms import CardForm
+from .forms import CardForm, SearchForm
 
 cards_dataset = [
     {"question": "Что такое PEP 8?",
@@ -158,9 +159,20 @@ def add_card(request):
         form = CardForm(request.POST)
         if form.is_valid():
             card = form.save()
-            # Редирект на страницу созданной карточки после успешного сохранения
             return redirect(card.get_absolute_url())
     else:
         form = CardForm()
 
     return render(request, 'cards/add_card.html', {'form': form})
+
+
+def card_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Card.objects.annotate(search=SearchVector('question', 'answer'), ).filter(search=query)
+    return render(request, 'cards/search.html', {'form': form, 'query': query, 'results': results})
