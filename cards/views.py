@@ -1,4 +1,5 @@
 from django.contrib.postgres.search import SearchVector
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import Card
@@ -98,6 +99,7 @@ def catalog(request):
 
     sort = request.GET.get('sort', 'upload_date')
     order = request.GET.get('order', 'desc')
+    search_query = request.GET.get('search_query', '')
 
     valid_sort_fields = {'upload_date', 'views', 'adds'}
     if sort not in valid_sort_fields:
@@ -108,7 +110,13 @@ def catalog(request):
     else:
         order_by = f'-{sort}'
 
-    cards = Card.objects.all().order_by(order_by)
+    if not search_query:
+        cards = Card.objects.all().order_by(order_by)
+    else:
+        cards = Card.objects.filter(Q(question__icontains=search_query) |
+                                    Q(answer__icontains=search_query) |
+                                    Q(tags__name__icontains=search_query)).select_related('category').prefetch_related('tags').order_by(order_by).distinct()
+
     context = {
         'cards': cards,
         'cards_count': len(cards),
@@ -164,15 +172,3 @@ def add_card(request):
         form = CardForm()
 
     return render(request, 'cards/add_card.html', {'form': form})
-
-
-def card_search(request):
-    form = SearchForm()
-    query = None
-    results = []
-    if 'query' in request.GET:
-        form = SearchForm(request.GET)
-        if form.is_valid():
-            query = form.cleaned_data['query']
-            results = Card.objects.annotate(search=SearchVector('question', 'answer'), ).filter(search=query)
-    return render(request, 'cards/search.html', {'form': form, 'query': query, 'results': results})
