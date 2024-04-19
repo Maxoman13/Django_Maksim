@@ -111,7 +111,7 @@ def catalog(request):
         order_by = f'-{sort}'
 
     if not search_query:
-        cards = Card.objects.all().order_by(order_by)
+        cards = Card.objects.select_related('category').prefetch_related('tags').order_by(order_by)
     else:
         cards = Card.objects.filter(Q(question__icontains=search_query) |
                                     Q(answer__icontains=search_query) |
