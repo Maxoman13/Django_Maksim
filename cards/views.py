@@ -1,9 +1,13 @@
+from datetime import datetime
 from django.contrib.postgres.search import SearchVector
+from django.core.cache import cache
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.views import View
 from .models import Card
 from .forms import CardForm, SearchForm
+from django.views.generic import TemplateView
 
 cards_dataset = [
     {"question": "Что такое PEP 8?",
@@ -75,20 +79,22 @@ info = {
     "cards": cards_dataset}
 
 
-def main(request):
-    """
-    Функция для отображения главной страницы
-    будет возвращать рендер шаблона main.html
-    """
-    return render(request, 'main.html', info)
+class MenuMixin:
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(info)
+        return context
 
 
-def about(request):
-    """
-    Функция для отображения страницы о сайте
-    будет возвращать рендер шаблона about.html
-    """
-    return render(request, 'about.html', info)
+class IndexView(MenuMixin, TemplateView):
+    template_name = 'main.html'
+
+
+class AboutView(MenuMixin, TemplateView):
+    template_name = 'about.html'
+
+    extra_context = {'title': 'О проекте'}
 
 
 def catalog(request):
@@ -115,7 +121,8 @@ def catalog(request):
     else:
         cards = Card.objects.filter(Q(question__icontains=search_query) |
                                     Q(answer__icontains=search_query) |
-                                    Q(tags__name__icontains=search_query)).select_related('category').prefetch_related('tags').order_by(order_by).distinct()
+                                    Q(tags__name__icontains=search_query)).select_related('category').prefetch_related(
+            'tags').order_by(order_by).distinct()
 
     context = {
         'cards': cards,

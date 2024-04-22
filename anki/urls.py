@@ -22,9 +22,9 @@ urlpatterns = [
     # Администратор
     path('admin/', admin.site.urls),
     # Главная страница
-    path('', views.main, name='index'),
+    path('', views.IndexView.as_view(), name='index'),
     # О сайте
-    path('about/', views.about, name='about'),
+    path('about/', views.AboutView.as_view(), name='about'),
     # Маршрут к приложению карт
     path('cards/', include('cards.urls')),
 ]
