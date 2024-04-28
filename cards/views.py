@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from .models import Card
 from .forms import CardForm, SearchForm
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 
 info = {
     "menu": [
@@ -31,7 +31,8 @@ class MenuMixin:
         context['cards_count'] = self.get_cards_count()
         return context
 
-    def get_cards_count(self):
+    @staticmethod
+    def get_cards_count():
         cards_count = cache.get('cards_count')
         if not cards_count:
             cards_count = Card.objects.count()
@@ -48,41 +49,57 @@ class AboutView(MenuMixin, TemplateView):
     template_name = 'about.html'
 
 
+class CatalogView(ListView):
+    model = Card  # Указываем модель, данные которой мы хотим отобразить
+    template_name = 'cards/catalog.html'  # Путь к шаблону, который будет использоваться для отображения страницы
+    context_object_name = 'cards'  # Имя переменной контекста, которую будем использовать в шаблоне
+    paginate_by = 30  # Количество объектов на странице
 
-def catalog(request):
-    """
-    Функция для отображения каталога карточек
-    будет возвращать рендер шаблона cards/catalog.html
-    """
+    # Метод для модификации начального запроса к БД
+    def get_queryset(self):
+        # Получение параметров сортировки из GET-запроса
+        sort = self.request.GET.get('sort', 'upload_date')
+        order = self.request.GET.get('order', 'desc')
+        search_query = self.request.GET.get('search_query', '')
 
-    sort = request.GET.get('sort', 'upload_date')
-    order = request.GET.get('order', 'desc')
-    search_query = request.GET.get('search_query', '')
+        # Определение направления сортировки
+        if order == 'asc':
+            order_by = sort
+        else:
+            order_by = f'-{sort}'
 
-    valid_sort_fields = {'upload_date', 'views', 'adds'}
-    if sort not in valid_sort_fields:
-        sort = 'upload_date'
+        # Фильтрация карточек по поисковому запросу и сортировка
+        if search_query:
+            queryset = Card.objects.filter(
+                Q(question__icontains=search_query) |
+                Q(answer__icontains=search_query) |
+                Q(tags__name__icontains=search_query)
+            ).distinct().order_by(order_by)
+        else:
+            queryset = Card.objects.all().order_by(order_by)
+        return queryset
 
-    if order == 'asc':
-        order_by = sort
-    else:
-        order_by = f'-{sort}'
+    # Метод для добавления дополнительного контекста
+    def get_context_data(self, **kwargs):
+        # Получение существующего контекста из базового класса
+        context = super().get_context_data(**kwargs)
+        # Добавление дополнительных данных в контекст
+        context['sort'] = self.request.GET.get('sort', 'upload_date')
+        context['order'] = self.request.GET.get('order', 'desc')
+        context['search_query'] = self.request.GET.get('search_query', '')
+        # Добавление статических данных в контекст, если это необходимо
+        context['menu'] = info['menu']  # Пример добавления статических данных в контекст
+        context['cards_count'] = self.get_cards_count()
+        return context
 
-    if not search_query:
-        cards = Card.objects.select_related('category').prefetch_related('tags').order_by(order_by)
-    else:
-        cards = Card.objects.filter(Q(question__icontains=search_query) |
-                                    Q(answer__icontains=search_query) |
-                                    Q(tags__name__icontains=search_query)).select_related('category').prefetch_related(
-            'tags').order_by(order_by).distinct()
+    @staticmethod
+    def get_cards_count():
+        cards_count = cache.get('cards_count')
+        if not cards_count:
+            cards_count = Card.objects.count()
+            cache.set('cards_count', cards_count)
 
-    context = {
-        'cards': cards,
-        'cards_count': len(cards),
-        'menu': info['menu']
-    }
-    return render(request, 'cards/catalog.html', context)
-
+        return cards_count
 
 def get_category_by_name(request, slug):
     """
