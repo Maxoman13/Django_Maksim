@@ -64,7 +64,6 @@ cards_dataset = [
 info = {
     "users_count": 100500,
     "cards_count": len('cards'),
-    # "menu": ['Главная', 'О проекте', 'Каталог']
     "menu": [
         {"title": "Главная",
          "url": "/",

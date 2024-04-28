@@ -1,15 +1,13 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                {% for item in menu %}
-                <li class="nav-item">
-                    <a href="{% url item.url_name %}">{{item.title}}</a>
-                </li>
-                {% if not forloop.last %}
-                <hr/>
-                {% endif %}{% endfor %}
-            </ul>
-        </div>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        {% for item in menu %}
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url item.url_name %}">{{item.title}}</a>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
+  </div>
 </nav>

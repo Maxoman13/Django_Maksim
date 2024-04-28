@@ -18,8 +18,10 @@
     {% include "include/menu.html" %}
     {% endblock %}
 </header>
-<main>
+<main class="flex-shrink-0">
+  <div class="container mt-3">
     {% block content %} {% endblock %}
+  </div>
 </main>
 
 <footer class="footer mt-auto py-3 bg-light">
