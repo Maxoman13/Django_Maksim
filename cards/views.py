@@ -1,13 +1,13 @@
 from datetime import datetime
 from django.contrib.postgres.search import SearchVector
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, F
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import Card
 from .forms import CardForm, SearchForm
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 
 info = {
     "menu": [
@@ -49,7 +49,7 @@ class AboutView(MenuMixin, TemplateView):
     template_name = 'about.html'
 
 
-class CatalogView(ListView):
+class CatalogView(MenuMixin, ListView):
     model = Card  # Указываем модель, данные которой мы хотим отобразить
     template_name = 'cards/catalog.html'  # Путь к шаблону, который будет использоваться для отображения страницы
     context_object_name = 'cards'  # Имя переменной контекста, которую будем использовать в шаблоне
@@ -87,8 +87,6 @@ class CatalogView(ListView):
         context['sort'] = self.request.GET.get('sort', 'upload_date')
         context['order'] = self.request.GET.get('order', 'desc')
         context['search_query'] = self.request.GET.get('search_query', '')
-        # Добавление статических данных в контекст, если это необходимо
-        context['menu'] = info['menu']  # Пример добавления статических данных в контекст
         context['cards_count'] = self.get_cards_count()
         return context
 
@@ -101,25 +99,26 @@ class CatalogView(ListView):
 
         return cards_count
 
-def get_category_by_name(request, slug):
-    """
-    Функция для отображения категорий по имени
-    """
-    return HttpResponse(f"Категория {slug}")
 
+class CardDetailView(DetailView):
+    model = Card  # Указываем, что моделью для этого представления является Card
+    template_name = 'cards/card_detail.html'  # Указываем путь к шаблону для детального отображения карточки
+    context_object_name = 'card'  # Переопределяем имя переменной в контексте шаблона на 'card'
 
-def get_detail_card_by_id(request, card_id):
-    """
-    Функция для отображения детального представления карточки
-    будет возвращать рендер шаблона cards/card_detail.html
-    """
-    card = Card.objects.get(pk=card_id)
-    context = {
-        'card': card,
-        'menu': info['menu']
-    }
+    # Метод для добавления дополнительных данных в контекст шаблона
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)  # Получаем исходный контекст от базового класса
+        context['menu'] = info['menu']  # Добавляем в контекст информацию о меню
+        context['title'] = f'Карточка: {context["card"].question}'  # Добавляем заголовок страницы
+        return context
 
-    return render(request, 'cards/card_detail.html', context)
+    # Метод для обновления счетчика просмотров при каждом отображении детальной страницы карточки
+    def get_object(self, queryset=None):
+        # Получаем объект с учетом переданных в URL параметров (в данном случае, pk или id карточки)
+        obj = super().get_object(queryset=queryset)
+        # Увеличиваем счетчик просмотров на 1 с помощью F-выражения для избежания гонки условий
+        Card.objects.filter(pk=obj.pk).update(views=F('views') + 1)
+        return obj
 
 
 def get_cards_by_tag(request, tag_id):
