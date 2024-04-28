@@ -2,12 +2,13 @@ from datetime import datetime
 from django.contrib.postgres.search import SearchVector
 from django.core.cache import cache
 from django.db.models import Q, F
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.http import HttpResponse, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
 from django.views import View
-from .models import Card
+from .models import Card, Tag
 from .forms import CardForm, SearchForm
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView
 
 info = {
     "menu": [
@@ -42,14 +43,23 @@ class MenuMixin:
 
 
 class IndexView(MenuMixin, TemplateView):
+    """
+    Класс для главной страницы
+    """
     template_name = 'main.html'
 
 
 class AboutView(MenuMixin, TemplateView):
+    """
+    Класс страницы "О проекте"
+    """
     template_name = 'about.html'
 
 
 class CatalogView(MenuMixin, ListView):
+    """
+    Класс для каталога карточек
+    """
     model = Card  # Указываем модель, данные которой мы хотим отобразить
     template_name = 'cards/catalog.html'  # Путь к шаблону, который будет использоваться для отображения страницы
     context_object_name = 'cards'  # Имя переменной контекста, которую будем использовать в шаблоне
@@ -100,7 +110,10 @@ class CatalogView(MenuMixin, ListView):
         return cards_count
 
 
-class CardDetailView(DetailView):
+class CardDetailView(MenuMixin, DetailView):
+    """
+    Класс для детального отображения карточек
+    """
     model = Card  # Указываем, что моделью для этого представления является Card
     template_name = 'cards/card_detail.html'  # Указываем путь к шаблону для детального отображения карточки
     context_object_name = 'card'  # Переопределяем имя переменной в контексте шаблона на 'card'
@@ -135,6 +148,29 @@ def get_cards_by_tag(request, tag_id):
     }
 
     return render(request, 'cards/catalog.html', context)
+
+
+class AddCardCreateView(MenuMixin, CreateView):
+    """
+    Класс для добавления карточек
+    """
+    model = Card  # Указываем модель, с которой работает представление
+    form_class = CardForm  # Указываем класс формы для создания карточки
+    template_name = 'cards/add_card.html'  # Указываем шаблон, который будет использоваться для отображения формы
+    success_url = reverse_lazy('catalog')  # URL для перенаправления после успешного создания карточки
+    redirect_field_name = 'next'
+
+    def form_valid(self, form):
+        # Метод вызывается, если форма валидна
+        # Здесь можно добавить дополнительную логику обработки данных формы перед сохранением объекта
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        # Метод для добавления дополнительных данных в контекст шаблона
+        context = super().get_context_data(**kwargs)
+        # Добавляем в контекст информацию о меню, предполагая, что 'info' доступен в контексте
+        context['menu'] = info['menu']
+        return context
 
 
 def add_card(request):
