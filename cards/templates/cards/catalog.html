@@ -57,10 +57,16 @@
     <div class="col-12">
 
 <p>Здесь вы можете выбрать карточки для изучения</p>
-<p>На текущий момент, у нас карточек: {{cards_count}} и пользователей: {{users_count}} </p>
+<p>На текущий момент, у нас карточек: {{cards_count}}</p>
+    <div class="container text-center">
+        <div class="row justify-content-md-center">
     {% for card in cards %}
-        {% include 'include/card_preview.html' %}
+            <div class="col-md-auto">
+            {% include 'include/card_preview.html' %}
+            </div>
     {% endfor %}
-       </div>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}

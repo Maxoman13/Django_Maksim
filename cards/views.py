@@ -9,61 +9,7 @@ from .models import Card
 from .forms import CardForm, SearchForm
 from django.views.generic import TemplateView
 
-cards_dataset = [
-    {"question": "Что такое PEP 8?",
-     "answer": "PEP 8 — стандарт написания кода на Python.",
-     "category": "Стандарты кода",
-     "tags": ["PEP 8", "стиль", "форматирование"],
-     "id_author": 1,
-     "id_card": 1,
-     "upload_date": "2023-01-15",
-     "views_count": 100,
-     "favorites_count": 25
-     },
-    {"question": "Как объявить список в Python?",
-     "answer": "С помощью квадратных скобок: lst = []",
-     "category": "Основы",
-     "tags": ["списки", "основы"],
-     "id_author": 2,
-     "id_card": 2,
-     "upload_date": "2023-01-20",
-     "views_count": 150,
-     "favorites_count": 30
-     },
-    {"question": "Что делает метод .append()?",
-     "answer": "Добавляет элемент в конец списка.",
-     "category": "Списки",
-     "tags": ["списки", "методы"],
-     "id_author": 2,
-     "id_card": 3,
-     "upload_date": "2023-02-05",
-     "views_count": 75,
-     "favorites_count": 20
-     },
-    {"question": "Какие типы данных в Python иммутабельные?",
-     "answer": "Строки, числа, кортежи.",
-     "category": "Типы данных",
-     "tags": ["типы данных", "иммутабельность"],
-     "id_author": 1,
-     "id_card": 4,
-     "upload_date": "2023-02-10",
-     "views_count": 90,
-     "favorites_count": 22
-     },
-    {"question": "Как создать виртуальное окружение в Python?",
-     "answer": "С помощью команды: python -m venv myenv",
-     "category": "Виртуальные окружения",
-     "tags": ["venv", "окружение"],
-     "id_author": 2,
-     "id_card": 5,
-     "upload_date": "2023-03-01",
-     "views_count": 120,
-     "favorites_count": 40
-     }
-]
 info = {
-    "users_count": 100500,
-    "cards_count": len('cards'),
     "menu": [
         {"title": "Главная",
          "url": "/",
@@ -74,8 +20,7 @@ info = {
         {"title": "Каталог",
          "url": "/cards/catalog/",
          "url_name": "catalog"},
-    ],
-    "cards": cards_dataset}
+    ]}
 
 
 class MenuMixin:
@@ -83,7 +28,16 @@ class MenuMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(info)
+        context['cards_count'] = self.get_cards_count()
         return context
+
+    def get_cards_count(self):
+        cards_count = cache.get('cards_count')
+        if not cards_count:
+            cards_count = Card.objects.count()
+            cache.set('cards_count', cards_count)
+
+        return cards_count
 
 
 class IndexView(MenuMixin, TemplateView):
@@ -93,7 +47,6 @@ class IndexView(MenuMixin, TemplateView):
 class AboutView(MenuMixin, TemplateView):
     template_name = 'about.html'
 
-    extra_context = {'title': 'О проекте'}
 
 
 def catalog(request):
