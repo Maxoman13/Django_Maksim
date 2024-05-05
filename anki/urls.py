@@ -27,4 +27,5 @@ urlpatterns = [
     path('about/', views.AboutView.as_view(), name='about'),
     # Маршрут к приложению карт
     path('cards/', include('cards.urls')),
+    path('users/', include('users.urls')),
 ]
