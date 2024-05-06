@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.search import SearchVector
 from django.core.cache import cache
 from django.db.models import Q, F
@@ -150,7 +152,7 @@ def get_cards_by_tag(request, tag_id):
     return render(request, 'cards/catalog.html', context)
 
 
-class AddCardCreateView(MenuMixin, CreateView):
+class AddCardCreateView(MenuMixin, LoginRequiredMixin, CreateView):
     """
     Класс для добавления карточек
     """

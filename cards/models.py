@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
 
@@ -15,6 +16,8 @@ class Card(models.Model):
     tags = models.ManyToManyField('Tag', through='CardTag', related_name='cards', verbose_name='Теги')
     check_status = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)),
                                        default=Status.UNCHECKED, db_column='CheckStatus', verbose_name='Статус проверки')
+    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='cards', null=True,
+                               default=None, verbose_name='Автор')
 
     def __str__(self):
         return f'Карточка {self.question} - {self.answer[:50]}'
