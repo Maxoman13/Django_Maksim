@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView
+from django.views.generic import CreateView, TemplateView
 
 from cards.views import MenuMixin
 from .forms import LoginUserForm, RegisterUserForm
@@ -21,16 +21,21 @@ class LoginUser(MenuMixin, LoginView):
         return reverse_lazy('catalog')
 
 
-class LogoutUser(LogoutView):
+class LogoutUser(MenuMixin, LogoutView):
     next_page = reverse_lazy('users:login')
 
 
-class RegisterUser(CreateView):
+class RegisterUser(MenuMixin, CreateView):
     form_class = RegisterUserForm  # Указываем класс формы, который мы создали для регистрации
     template_name = 'users/register.html'  # Путь к шаблону, который будет использоваться для отображения формы
     extra_context = {'title': 'Регистрация'}  # Дополнительный контекст для передачи в шаблон
-    success_url = reverse_lazy('users:thanks_user')  # URL, на который будет перенаправлен пользователь после успешной регистрации
+    success_url = reverse_lazy(
+        'users:thanks_user')  # URL, на который будет перенаправлен пользователь после успешной регистрации
 
 
 def thanks(request):
     return render(request, 'users/thanks.html')
+
+
+class ThanksForRegister(TemplateView):
+    template_name = 'users/thanks.html'
