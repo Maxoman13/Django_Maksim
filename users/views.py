@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
 
 from cards.views import MenuMixin
-from .forms import LoginUserForm
+from .forms import LoginUserForm, RegisterUserForm
 
 
 class LoginUser(MenuMixin, LoginView):
@@ -24,9 +24,18 @@ class LogoutUser(LogoutView):
     next_page = reverse_lazy('users:login')
 
 
-def signup_user(request):
-    return HttpResponse("Вы вошли в систему")
+def signup(request):
+    if request.method == 'POST':
+        form = RegisterUserForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])  # Устанавливаем пароль
+            user.save()
+            return redirect('users:thanks_user')  # Перенаправляем на страницу успешной регистрации
+    else:
+        form = RegisterUserForm()  # Пустая форма для GET-запроса
+    return render(request, 'users/register.html', {'form': form})
 
 
-def thanks_user(request):
-    return HttpResponse("Спасибо за регистрацию")
+def thanks(request):
+    return render(request, 'users/thanks.html')
