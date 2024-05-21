@@ -1,13 +1,12 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, TemplateView, UpdateView
+from django.views.generic import CreateView, TemplateView
 
 from cards.views import MenuMixin
-from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
+from .forms import LoginUserForm, RegisterUserForm
 
 
 class LoginUser(MenuMixin, LoginView):
@@ -34,34 +33,9 @@ class RegisterUser(MenuMixin, CreateView):
         'users:thanks_user')  # URL, на который будет перенаправлен пользователь после успешной регистрации
 
 
+def thanks(request):
+    return render(request, 'users/thanks.html')
+
+
 class ThanksForRegister(TemplateView):
     template_name = 'users/thanks.html'
-
-
-class ProfileUser(MenuMixin, LoginRequiredMixin, UpdateView):
-    model = get_user_model()  # Используем модель текущего пользователя
-    form_class = ProfileUserForm  # Связываем с формой профиля пользователя
-    template_name = 'users/profile.html'  # Указываем путь к шаблону
-    extra_context = {'title': 'Профиль пользователя', 'active_tab': 'profile'}  # Дополнительный контекст для передачи в шаблон
-
-    def get_success_url(self):
-        # URL, на который переадресуется пользователь после успешного обновления
-        return reverse_lazy('users:profile')
-
-    def get_object(self, queryset=None):
-        # Возвращает объект модели, который должен быть отредактирован
-        return self.request.user
-
-
-class PasswordChange(PasswordChangeView):
-    form_class = UserPasswordChangeForm  # Указываем класс формы, который мы создали для регистрации
-    template_name = 'users/password_change_form.html'  # Путь к шаблону, который будет использоваться для отображения формы
-    extra_context = {'title': 'Смена пароля',
-                     'active_tab': 'password_change'}  # Дополнительный контекст для передачи в шаблон
-    success_url = reverse_lazy(
-        'users:password_change_done')  # URL, на который будет перенаправлен пользователь после успешной регистрации
-
-
-class PasswordChangeDone(TemplateView):
-    template_name = 'users/password_change_done.html'
-    extra_context = {'title': 'Пароль успешно изменен'}
