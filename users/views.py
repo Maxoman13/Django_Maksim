@@ -4,8 +4,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, TemplateView, UpdateView
+from django.views.generic import CreateView, TemplateView, UpdateView, ListView
 
+from cards.models import Card
 from cards.views import MenuMixin
 from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
 
@@ -62,3 +63,14 @@ class UserPasswordChange(PasswordChangeView):
 class UserPasswordChangeDone(TemplateView):
     template_name = 'users/password_change_done.html'
     extra_context = {'title': 'Пароль изменен успешно'}
+
+
+class UserCardsView(ListView):
+    model = Card
+    template_name = 'users/profile_cards.html'
+    context_object_name = 'cards'
+    extra_context = {'title': 'Мои карточки',
+                     'active_tab': 'profile_cards'}
+
+    def get_queryset(self):
+        return Card.objects.filter(author=self.request.user).order_by('-upload_date')
